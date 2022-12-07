@@ -1,0 +1,203 @@
+https://mongoplayground.net/
+=====================================================
+[
+  {
+    $match: {
+      $and: [
+        {
+          site_id: {
+            $in: [
+              "608bf7bd33f70c77cd9db94f"
+            ]
+          }
+        },
+        {
+          yearMonth: "202004"
+        }
+      ]
+    }
+  },
+  {
+    $unwind: {
+      path: "$detailedCarbon.custom",
+      includeArrayIndex: "arrayIndex"
+    }
+  },
+  {
+    $group: {
+      _id: "$detailedCarbon.custom.type",
+      totalValue: {
+        $sum: {
+          $multiply: [
+            "$detailedCarbon.custom.value",
+            "$detailedCarbon.custom.co2PerUnit"
+          ]
+        }
+      },
+      
+    },
+    
+  },
+  
+]
+==============================================================
+
+db.collection.aggregate([
+  {
+    $unwind: {
+      path: "$detailedCarbon.custom",
+      includeArrayIndex: "arrayIndex"
+    }
+  },
+  {
+    $group: {
+      _id: "$detailedCarbon.custom.type",
+      totalValue: {
+        $sum: "$detailedCarbon.custom.value"
+      }
+    }
+  },
+])
+==============================================================
+[
+  {
+    $unwind: {
+      path: "$detailedCarbon.custom",
+      includeArrayIndex: "arrayIndex"
+    }
+  },
+  {
+    $group: {
+      _id: "$detailedCarbon.custom.type",
+      totalValue: {
+        $sum: {
+          $multiply: [
+            "$detailedCarbon.custom.value",
+            "$detailedCarbon.custom.co2PerUnit"
+          ]
+        }
+      },
+    },
+  },
+  
+]
+===============================================================
+
+
+	  
+	  =========================================================================
+	  db.collection.aggregate([
+  {
+    $match: {
+      $and: [
+        {
+          site_id: {
+            $in: [
+              "608bf7bd33f70c77cd9db94a",
+              "608bf7bd33f70c77cd9db94b"
+            ]
+          }
+        },
+        
+      ]
+    }
+  },
+  {
+    $unwind: {
+      path: "$detailedCarbon.custom",
+      includeArrayIndex: "arrayIndex"
+    }
+  },
+  {
+    $group: {
+      _id: "$detailedCarbon.custom.type",
+      totalValue: {
+        $sum: {
+          $multiply: [
+            "$detailedCarbon.custom.value",
+            "$detailedCarbon.custom.co2PerUnit"
+          ]
+        }
+      },
+      
+    },
+    
+  },
+  
+])
+ ======================================================================
+
+let querys = [
+        
+        { $match: { $and: [
+          {
+            org_id: {
+              $in: [
+                'ad482c30-0780-11ed-975d-c9b704bef9f8'
+              ]
+            }
+          },
+          {
+            // yearMonth: {$in : ['202101']} 
+          }
+        ]}
+       },
+        {
+          $unwind: {
+            path: "$energyFuels.electricity",
+            includeArrayIndex: "arrayIndex"
+          }
+        },
+        {
+          $group: {
+            _id: "$yearMonth",
+            // _id: "$energyFuels.electricity.yearMonth", yearMonth: { $push: "$yearMonth" },
+            totalValue: {
+              $sum: "$energyFuels.electricity.value"
+            },
+            
+          },      
+        },
+      ]
+      let energyData = await db.readAggregationData(
+        config_params.V2_CARBON_DATA,
+        querys
+      );
+===================================================================================
+
+  let querys = [     
+            {
+              $match: {
+                $and: [
+                  {
+                    org_id: {
+                      $in: [_orgId],
+                    },
+                  },
+                  {
+                    yearMonth: { $in: benchmarkPeriodYearMonths },
+                  },
+                ],
+              },
+            },
+           { $facet: { 
+            "companyInfo": [
+                { $match: {'companyInfo.isBenchmark': true} },
+                ],
+            "employeeTravel": [
+               { $match: {'employeeTravel.isBenchmark': true} },
+                ],
+            "businessTravel": [
+              { $match: {'businessTravel.isBenchmark': true} },
+               ],
+            "energyFuels": [
+              { $match: {'energyFuels.isBenchmark': true} },
+              ],
+            "detailedCarbon": [
+            { $match: {'detailedCarbon.isBenchmark': true} },
+               ]
+             }
+            },                   
+          ];
+
+======================================================================================
